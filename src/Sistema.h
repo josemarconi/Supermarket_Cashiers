@@ -8,7 +8,7 @@
 typedef struct Cliente 
 {
     char nome[100];
-    char CPF[12]; 
+    char CPF[14]; 
     int prioridade;
     int itens_Carrinho;
     struct Cliente* prox;
@@ -20,7 +20,10 @@ typedef struct Caixa
     int id;
     int aberto;
     Cliente* filaPrioridade[3];
-    
+    // Fila ligada //
+    // Uma array de três ponteiros cada ponteiro aponta para a lista de prioridade// 
+    // uma para cada tipo de prioridade de cliente (1,2 e 3) (lista ligada)//
+
 } Caixa;
 
 int contarCaixasAbertos(Caixa* caixas, int numCaixas);

@@ -2,16 +2,18 @@
 
 int main() 
 {
+    // Inicializa o número de caixas totais//
     int numCaixas = 5;
 
+    // Aloca a memória dos caixas e verifica se a alocação funcionou//
     Caixa* caixas = (Caixa*)malloc(numCaixas * sizeof(Caixa));
-
     if (caixas == NULL) 
     {
         printf("Erro ao alocar memoria.\n");
         return 1;
     }
 
+    // Inicializa os caixas (todos como abertos), e a fila de prioridade nula//
     for (int i = 0; i < numCaixas; i++) 
     {
         caixas[i].id = i;
@@ -24,6 +26,7 @@ int main()
 
     int opcao;
     
+    // Menu do sistema//
     do 
     {
         printf("\nMenu:\n");

@@ -1,5 +1,6 @@
 #include "Sistema.h"
 
+//Função para contar quantos caixas estão abertos//
 int contarCaixasAbertos(Caixa* caixas, int numCaixas) 
 {
     int count = 0;
@@ -14,6 +15,8 @@ int contarCaixasAbertos(Caixa* caixas, int numCaixas)
     return count;
 }
 
+
+//Função para encontrar o caixa com menos clientes, retornando seu indice//
 int caixaComMenosClientes(Caixa* caixas, int numCaixas) 
 {
     int minClientes = INT_MAX;
@@ -45,6 +48,7 @@ int caixaComMenosClientes(Caixa* caixas, int numCaixas)
     return caixaEscolhido;
 }
 
+//Função para verificar se o CPF já fo icadastrado no sistema//
 int cpfJaCadastrado(Caixa* caixas, int numCaixas, const char* cpf) 
 {
     for (int i = 0; i < numCaixas; i++) 
@@ -67,14 +71,17 @@ int cpfJaCadastrado(Caixa* caixas, int numCaixas, const char* cpf)
     return 0;
 }
 
+//Função para cadastrar um novo cliente no sistema//
 void cadastrarCliente(Caixa* caixas, int numCaixas) 
 {
+    //Primeiro averigua se todos os caixas estão fechados//
     if (contarCaixasAbertos(caixas, numCaixas) == 0) 
     {
         printf("Todos os caixas estão fechados. Não é possível cadastrar clientes.\n");
         return;
     }
 
+    //Aloca memória para um novo cliente//
     Cliente* novoCliente = (Cliente*)malloc(sizeof(Cliente));
 
     if (novoCliente == NULL)
@@ -89,6 +96,7 @@ void cadastrarCliente(Caixa* caixas, int numCaixas)
     printf("CPF do cliente: ");
     scanf("%s", novoCliente->CPF);
 
+    //Chama a função para encontrar se há um cpf igual existente//
     if (cpfJaCadastrado(caixas, numCaixas, novoCliente->CPF)) 
     {
         printf("CPF já cadastrado.\n");
@@ -108,6 +116,7 @@ void cadastrarCliente(Caixa* caixas, int numCaixas)
     printf("Escolha o caixa (0 a %d): ", numCaixas - 1);
     scanf("%d", &caixaEscolhido);
 
+    //Averigua se o caixa escolhido está aberto ou é válido//
     if (caixaEscolhido < 0 || caixaEscolhido >= numCaixas || !caixas[caixaEscolhido].aberto) 
     {
         printf("Caixa inválido ou fechado.\n");
@@ -115,19 +124,24 @@ void cadastrarCliente(Caixa* caixas, int numCaixas)
         return;
     }
 
+    //Iguala uma váriavel fila(ponteiro para um ponteiro de Cliente) a fila de prioridade existente//
     int prioridadeIndex = novoCliente->prioridade - 1;
     Cliente** fila = &caixas[caixaEscolhido].filaPrioridade[prioridadeIndex];
 
+    //Percorre a fila até encontrar o Nulo//
     while (*fila != NULL) 
     {
+        // Atualiza fila para apontar para o ponteiro prox do cliente atual //
         fila = &(*fila)->prox;
     }
     
+    //Adiciona o cliente na fila de prioridade do caixa que foi escolhido//
     *fila = novoCliente;
 
     printf("Cliente cadastrado com sucesso no caixa %d.\n", caixaEscolhido);
 }
 
+//Função para atendimento de um cliente//
 void atenderCliente(Caixa* caixas, int numCaixas) 
 {
     int caixaEscolhido;
@@ -141,11 +155,12 @@ void atenderCliente(Caixa* caixas, int numCaixas)
     }
 
     for (int i = 0; i < 3; i++) 
-    {
+    {   
+        //itera em todas as 3 filas //
         if (caixas[caixaEscolhido].filaPrioridade[i] != NULL) 
         {
             Cliente* clienteAtendido = caixas[caixaEscolhido].filaPrioridade[i];
-            caixas[caixaEscolhido].filaPrioridade[i] = clienteAtendido->prox;
+            caixas[caixaEscolhido].filaPrioridade[i] = clienteAtendido->prox; //Atualiza o ponteiro da fila para o próximo cliente//
             printf("Atendendo cliente: %s, CPF: %s\n", clienteAtendido->nome, clienteAtendido->CPF);
             free(clienteAtendido);
             return;
@@ -178,27 +193,34 @@ void abrirFecharCaixa(Caixa* caixas, int numCaixas, int idCaixa, int abrir)
             while (cliente != NULL) 
             {
                 Cliente* proxCliente = cliente->prox;
-                int novoCaixa = caixaComMenosClientes(caixas, numCaixas);
+                int novoCaixa = caixaComMenosClientes(caixas, numCaixas); //retorna o indice do caixa//
 
                 if (novoCaixa != -1) 
                 {
-
+                    //Remove o Cliente da fila atual//
                     cliente->prox = NULL;
                     int prioridadeIndex = cliente->prioridade - 1;
+
+                    //Iguala uma váriavel fila(ponteiro para um ponteiro de Cliente) a fila de prioridade existente//
                     Cliente** fila = &caixas[novoCaixa].filaPrioridade[prioridadeIndex];
 
+                    //Percorre a fila até encontrar o Nulo//
                     while (*fila != NULL) 
                     {
                         fila = &(*fila)->prox;
                     }
+                    //Adiciona o cliente na fila de prioridade do caixa que foi escolhido//
                     *fila = cliente;
                 }
+                //Atualiza para o próximo cliente a ser movido//
                 cliente = proxCliente;
             }
+            //Após mover todos, define a fila de prioridade como nula//
             caixas[idCaixa].filaPrioridade[i] = NULL;
         }
     }
 
+    //Atualiza o estado do caixa//
     caixas[idCaixa].aberto = abrir;
     printf("Caixa %d %s com sucesso.\n", idCaixa, abrir ? "aberto" : "fechado");
 }
